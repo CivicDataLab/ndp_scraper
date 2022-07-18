@@ -1,0 +1,17 @@
+curl "https://data.gov.in/backend/dms/v1/ogdp/download_purpose?_format=json" ^
+-H "Accept: application/json, text/plain, */*" ^
+-H "Accept-Language: en-GB,en-US;q=0.9,en;q=0.8" ^
+-H "Connection: keep-alive" ^
+-H "Content-Type: application/json;charset=UTF-8" ^
+-H "Cookie: _ga=GA1.3.952033096.1658121537; _gid=GA1.3.1175466999.1658121537" ^
+-H "Origin: https://data.gov.in" ^
+-H "Referer: https://data.gov.in/catalog/real-time-air-quality-index" ^
+-H "Sec-Fetch-Dest: empty" ^
+-H "Sec-Fetch-Mode: cors" ^
+-H "Sec-Fetch-Site: same-origin" ^
+-H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36" ^
+-H "sec-ch-ua: ^\^".Not/A)Brand^\^";v=^\^"99^\^", ^\^"Google Chrome^\^";v=^\^"103^\^", ^\^"Chromium^\^";v=^\^"103^\^"" ^
+-H "sec-ch-ua-mobile: ?0" ^
+-H "sec-ch-ua-platform: ^\^"Windows^\^"" ^
+--data-raw "^{^\^"name^\^":^[^{^\^"value^\^":^\^"qqq^\^"^}^],^\^"uid^\^":^[^{^\^"value^\^":0^}^],^\^"ip^\^":^[^{^\^"value^\^":^\^"^\^"^}^],^\^"usage^\^":^[^{^\^"value^\^":^\^"2^\^"^}^],^\^"purpose^\^":^[^{^\^"value^\^":^\^"3^\^"^}^],^\^"file_type^\^":^[^{^\^"value^\^":^\^"gov^\^"^}^],^\^"export_status^\^":^[^{^\^"value^\^":^\^"download^\^"^}^],^\^"email^\^":^[^{^\^"value^\^":^\^"qwy^@c.aas^\^"^}^],^\^"catalog_id^\^":^[^{^\^"target_id^\^":^\^"^\^"^}^],^\^"resource_id^\^":^[^{^\^"target_id^\^":804661^}^]^}" ^
+--compressed
