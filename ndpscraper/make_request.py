@@ -1,4 +1,1 @@
 from variables import *
-
-
-
