@@ -11,7 +11,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 import requests
 import re
-
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support import expected_conditions
@@ -33,19 +33,44 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
 options.add_argument("--disable-gpu")
 path_to_chrome_driver = "E:/chromedriver"
-driver = webdriver.Chrome(options=options, executable_path=path_to_chrome_driver)
+driver = webdriver.Remote(
+  desired_capabilities=webdriver.DesiredCapabilities.HTMLUNITWITHJS)
 
 site_url = "https://data.gov.in/catalogs?"
 
 driver.get(
-    "https://data.gov.in/catalog/variety-wise-daily-market-prices-data-mango-raw-ripe"
+    "https://data.gov.in/catalog/coverage-schools-tap-connection-under-jal-jeevan-mission-jjm"
 )
 
 notes_list = []
-notes_xpath = "//div[@class='pr-0 col-12']/div/div/div"
-notes_elements = driver.find_elements(By.XPATH, notes_xpath)
-for element in notes_elements:
-    notes_list.append(element.text)
+names_list = []
+ref_url_list = []
+
+reference_url_xpath = "//div[@class='CR_strip col-12'][1]"
+note_xpath = "//div[@class='pr-0 col-12']/div/div/div"
+name_xpath = "//div[@class='card-header']/span"
+
+ref_url_elements = driver.find_elements(By.XPATH, reference_url_xpath)
+note_elements = driver.find_elements(By.XPATH, note_xpath)
+name_elements = driver.find_elements(By.XPATH, name_xpath)
+if len(ref_url_elements) == len(note_elements) == len(name_elements):
+    for i in range(len(name_elements)):
+        element_not_found = True
+        y = 10
+        while element_not_found:
+            try:
+                ActionChains(driver).scroll_by_amount(0, y).perform()
+                time.sleep(1)
+                hov = ActionChains(driver).move_to_element(name_elements[i]).perform()
+                wait_until_loading(driver, "//div[@class='popover-body']")
+                name = driver.find_element(
+                    By.XPATH, "//div[@class='popover-body']"
+                ).text
+                names_list.append(name)
+                element_not_found = False
+            except:
+                y += 35
+
 print(notes_list)
 '''
 na_xpath = "//div[@class='CR_strip col-12'][2]/div/div[3]"

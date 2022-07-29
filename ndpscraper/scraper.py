@@ -6,7 +6,7 @@ import time
 
 from selenium import webdriver
 from selenium.common import NoSuchElementException
-from selenium.webdriver import ActionChains
+from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
@@ -26,6 +26,9 @@ def wait_until_loading(driver_instance: WebDriver, xpath: str, delay=3):
         EC.presence_of_element_located((By.XPATH, xpath))
     )
 
+
+def scroll_to_top(driver_instance: WebDriver):
+    driver_instance.find_element(By.TAG_NAME, "body").send_keys(Keys.CONTROL + Keys.HOME)
 
 def xpath_exists(driver: WebDriver, xpath: str):
     try:
@@ -224,23 +227,23 @@ def get_granularity_of_all(driver_instance:WebDriver):
 
 
 def get_published_dates(driver_instance:WebDriver):
-    published_dates = []
+    published_dates_list = []
     published_date_xpath = "//label[@title = 'Published on:']/following::strong[1]"
     if xpath_exists(driver_instance, published_date_xpath):
         published_dates_elements = driver_instance.find_elements(By.XPATH, published_date_xpath)
         for element in published_dates_elements:
-            published_dates.append(element.text)
-    return published_dates
+            published_dates_list.append(element.text)
+    return published_dates_list
 
 
 def get_updated_dates(driver_instance:WebDriver):
-    updated_dates = []
+    updated_dates_list = []
     updated_date_xpath = "//label[@title = 'Updated on:']/following::strong[1]"
     if xpath_exists(driver_instance, updated_date_xpath):
         updated_dates_elements = driver_instance.find_elements(By.XPATH, updated_date_xpath)
         for element in updated_dates_elements:
-            updated_dates.append(element.text)
-    return updated_dates
+            updated_dates_list.append(element.text)
+    return updated_dates_list
 
 
 def get_reference_urls(driver_instance: WebDriver):
@@ -251,7 +254,6 @@ def get_reference_urls(driver_instance: WebDriver):
         for element in reference_url_elements:
             reference_urls.append(element.text)
     return reference_urls
-
 
 def get_api_details(driver_instance:WebDriver):
     api_list = []
@@ -273,9 +275,25 @@ def get_notes(driver_instance: WebDriver):
     notes_list = []
     notes_xpath = "//div[@class='pr-0 col-12']/div/div/div"
     if xpath_exists(driver_instance, notes_xpath):
+        scroll_to_top(driver_instance)
+        time.sleep(1)
         notes_elements = driver_instance.find_elements(By.XPATH, notes_xpath)
         for element in notes_elements:
-            notes_list.append(element.text)
+            element_not_found = True
+            y = 10
+            while element_not_found:
+                try:
+                    ActionChains(driver_instance).scroll_by_amount(0, y).perform()
+                    time.sleep(1)
+                    hov = ActionChains(driver_instance).move_to_element(element).perform()
+                    wait_until_loading(driver_instance, "//div[@class='popover-body']")
+                    note = driver_instance.find_element(
+                        By.XPATH, "//div[@class='popover-body']"
+                    ).text
+                    notes_list.append(note)
+                    element_not_found = False
+                except:
+                    y += 35
     return notes_list
 
 
@@ -310,11 +328,13 @@ options.add_argument("disable-infobars")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
 options.add_argument("--disable-gpu")
-##options.add_argument("headless")
+options.add_argument("headless")
 path_to_chrome_driver = "E:/chromedriver"
 driver = webdriver.Chrome(options=options, executable_path=path_to_chrome_driver)
 # phantom
 site_url = "https://data.gov.in/catalogs?"
+
+start_time = time.time()
 
 driver.get("https://data.gov.in/catalogs?page=1")
 
@@ -477,6 +497,7 @@ for page in range(
 
 print(len(detail_nid_tuple))
 print(set(detail_nid_tuple))
+print("time taken is ", time.time() - start_time)
 
 """Making a request ... Headers are to be updated using selectors """
 payload = (
