@@ -57,13 +57,19 @@ def calculate_num_of_pages(driver_instance: WebDriver):
         return 0
 
 
-def get_nids(driver: WebDriver):
-    pass
+def get_nids(driver_instance: WebDriver):
+    nid_list = []
+    nid_xpath = "//*[@id='app']/div/div[3]/div[2]/div[1]/div/div/div[2]/div[2]"
+    if xpath_exists(driver_instance, nid_xpath):
+        nid_elements = driver_instance.find_elements(By.XPATH, nid_xpath)
+        for element in nid_elements:
+            nid_list.append(element.get_attribute("nid"))
+    return nid_list
 
 
-def get_metadata(driver: WebDriver):
-    wait_until_loading(driver, "//span[@title='Click Here To View Info']")
-    catalog_info_button = driver.find_element(
+def get_metadata(driver_instance: WebDriver):
+    wait_until_loading(driver_instance, "//span[@title='Click Here To View Info']")
+    catalog_info_button = driver_instance.find_element(
         By.XPATH, "//span[@title='Click Here To View Info']"
     )
     catalog_name_xpath = "//li[@class = 'breadcrumb-item active']/span"
@@ -91,100 +97,100 @@ def get_metadata(driver: WebDriver):
     )
     metadata = metadata_dict
     try:
-        driver.execute_script("arguments[0].click();", catalog_info_button)
-        if xpath_exists(driver, catalog_name_xpath):
-            metadata["Catalog Name"] = driver.find_element(
+        driver_instance.execute_script("arguments[0].click();", catalog_info_button)
+        if xpath_exists(driver_instance, catalog_name_xpath):
+            metadata["Catalog Name"] = driver_instance.find_element(
                 By.XPATH, catalog_name_xpath
             ).text
-        if xpath_exists(driver, catalog_info_xpath):
-            metadata["Catalog Info"] = driver.find_element(
+        if xpath_exists(driver_instance, catalog_info_xpath):
+            metadata["Catalog Info"] = driver_instance.find_element(
                 By.XPATH, catalog_info_xpath
             ).text
-        if xpath_exists(driver, released_under_xpath):
-            metadata["Released Under"] = driver.find_element(
+        if xpath_exists(driver_instance, released_under_xpath):
+            metadata["Released Under"] = driver_instance.find_element(
                 By.XPATH, released_under_xpath
             ).text
 
-        wait_until_loading(driver, contributor_xpath)  # xpath for contributor
-        if xpath_exists(driver, contributor_xpath):
-            contributor_elements = driver.find_elements(By.XPATH, contributor_xpath)
+        wait_until_loading(driver_instance, contributor_xpath)  # xpath for contributor
+        if xpath_exists(driver_instance, contributor_xpath):
+            contributor_elements = driver_instance.find_elements(By.XPATH, contributor_xpath)
             contributors_list = []
             for element in contributor_elements:
                 contributors_list.append(element.get_attribute("innerHTML"))
             metadata["Contributor"] = contributors_list
 
-        if xpath_exists(driver, keywords_xpath):
-            keyword_elements = driver.find_elements(By.XPATH, keywords_xpath)
+        if xpath_exists(driver_instance, keywords_xpath):
+            keyword_elements = driver_instance.find_elements(By.XPATH, keywords_xpath)
             keywords_list = []
             for element in keyword_elements:
                 keywords_list.append(element.get_attribute("innerHTML"))
             metadata["Keywords"] = keywords_list
 
-        if xpath_exists(driver, group_xpath):
-            group_elements = driver.find_elements(By.XPATH, group_xpath)
+        if xpath_exists(driver_instance, group_xpath):
+            group_elements = driver_instance.find_elements(By.XPATH, group_xpath)
             groups_list = []
             for element in group_elements:
                 groups_list.append(element.get_attribute("innerHTML"))
             metadata["Group"] = groups_list
 
-        if xpath_exists(driver, sector_xpath):
-            sector_elements = driver.find_elements(By.XPATH, sector_xpath)
+        if xpath_exists(driver_instance, sector_xpath):
+            sector_elements = driver_instance.find_elements(By.XPATH, sector_xpath)
             sectors_list = []
             for element in sector_elements:
                 sectors_list.append(element.get_attribute("innerHTML"))
             metadata["Sectors"] = sectors_list
 
-        if xpath_exists(driver, published_on_xpath):
-            metadata["Published On"] = driver.find_element(
+        if xpath_exists(driver_instance, published_on_xpath):
+            metadata["Published On"] = driver_instance.find_element(
                 By.XPATH, published_on_xpath
             ).get_attribute("innerHTML")
 
-        if xpath_exists(driver, updated_on_xpath):
-            metadata["Updated On"] = driver.find_element(
+        if xpath_exists(driver_instance, updated_on_xpath):
+            metadata["Updated On"] = driver_instance.find_element(
                 By.XPATH, updated_on_xpath
             ).get_attribute("innerHTML")
 
-        if xpath_exists(driver, domain_xpath):
-            metadata["Domain"] = driver.find_element(
+        if xpath_exists(driver_instance, domain_xpath):
+            metadata["Domain"] = driver_instance.find_element(
                 By.XPATH, domain_xpath
             ).get_attribute("innerHTML")
 
-        if xpath_exists(driver, cdo_name_xpath):
-            metadata["CDO Name"] = driver.find_element(By.XPATH, cdo_name_xpath).text
-        if xpath_exists(driver, cdo_post_xpath):
-            metadata["CDO Post"] = (driver.find_element(By.XPATH, cdo_post_xpath).text,)
+        if xpath_exists(driver_instance, cdo_name_xpath):
+            metadata["CDO Name"] = driver_instance.find_element(By.XPATH, cdo_name_xpath).text
+        if xpath_exists(driver_instance, cdo_post_xpath):
+            metadata["CDO Post"] = (driver_instance.find_element(By.XPATH, cdo_post_xpath).text,)
 
         # Ministry name can be long and can only be extracted when hovered over it
-        if xpath_exists(driver, ministry_name_xpath):
+        if xpath_exists(driver_instance, ministry_name_xpath):
             try:
-                toolTip = WebDriverWait(driver, 3).until(
+                toolTip = WebDriverWait(driver_instance, 3).until(
                     EC.presence_of_element_located(
                         (By.XPATH, "//div[@class='details col-6']/h3")
                     )
                 )
-                hov = ActionChains(driver).move_to_element(toolTip).perform()
-                wait_until_loading(driver, "//div[@class='popover-body']")
-                ministry_name = driver.find_element(
+                hov = ActionChains(driver_instance).move_to_element(toolTip).perform()
+                wait_until_loading(driver_instance, "//div[@class='popover-body']")
+                ministry_name = driver_instance.find_element(
                     By.XPATH, "//div[@class='popover-body']"
                 ).text
                 metadata["Ministry/State/Department"] = ministry_name
             except:
                 logging.warning("Ministry name isn't intractable")
-        if xpath_exists(driver, phone_number_xpath):
+        if xpath_exists(driver_instance, phone_number_xpath):
             metadata["Phone"] = (
-                driver.find_element(By.XPATH, phone_number_xpath).text,
+                driver_instance.find_element(By.XPATH, phone_number_xpath).text,
             )
-        if xpath_exists(driver, email_xpath):
-            metadata["Email"] = (driver.find_element(By.XPATH, email_xpath).text,)
+        if xpath_exists(driver_instance, email_xpath):
+            metadata["Email"] = (driver_instance.find_element(By.XPATH, email_xpath).text,)
         # even address is extracted by hovering
-        if xpath_exists(driver, address_xpath):
+        if xpath_exists(driver_instance, address_xpath):
             try:
-                toolTip = WebDriverWait(driver, 3).until(
+                toolTip = WebDriverWait(driver_instance, 3).until(
                     EC.presence_of_element_located((By.XPATH, address_xpath))
                 )
-                hov = ActionChains(driver).move_to_element(toolTip).perform()
-                wait_until_loading(driver, "//div[@class='popover-body']")
-                address = driver.find_element(
+                hov = ActionChains(driver_instance).move_to_element(toolTip).perform()
+                wait_until_loading(driver_instance, "//div[@class='popover-body']")
+                address = driver_instance.find_element(
                     By.XPATH, "//div[@class='popover-body']"
                 ).text
                 metadata["Address"] = address
@@ -255,6 +261,7 @@ def get_reference_urls(driver_instance: WebDriver):
             reference_urls.append(element.text)
     return reference_urls
 
+
 def get_api_details(driver_instance:WebDriver):
     api_list = []
     api_xpath = "//div[@class='CR_strip col-12'][2]/div/div[3]"
@@ -297,22 +304,22 @@ def get_notes(driver_instance: WebDriver):
     return notes_list
 
 
-def get_resource_names(driver: WebDriver):
+def get_resource_names(driver_instance: WebDriver):
     resource_name_list = []
     card_header_xpath = "//div[@class='card-header']/span"
-    if xpath_exists(driver, card_header_xpath):
-        tool_tips_real = driver.find_elements(By.XPATH, card_header_xpath)
+    if xpath_exists(driver_instance, card_header_xpath):
+        tool_tips_real = driver_instance.find_elements(By.XPATH, card_header_xpath)
         tool_tips_real.pop(0)
         for element in tool_tips_real:
             element_not_found = True
             y = 10
             while element_not_found:
                 try:
-                    ActionChains(driver).scroll_by_amount(0, y).perform()
+                    ActionChains(driver_instance).scroll_by_amount(0, y).perform()
                     time.sleep(1)
-                    hov = ActionChains(driver).move_to_element(element).perform()
-                    wait_until_loading(driver, "//div[@class='popover-body']")
-                    name = driver.find_element(
+                    hov = ActionChains(driver_instance).move_to_element(element).perform()
+                    wait_until_loading(driver_instance, "//div[@class='popover-body']")
+                    name = driver_instance.find_element(
                         By.XPATH, "//div[@class='popover-body']"
                     ).text
                     resource_name_list.append(name)
@@ -322,13 +329,18 @@ def get_resource_names(driver: WebDriver):
     return resource_name_list
 
 
+def clear_lists(*lists: list):
+    for i in lists:
+        i.clear()
+
+
 options = Options()
 options.add_argument("--window-size=1920,1200")
 options.add_argument("disable-infobars")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
 options.add_argument("--disable-gpu")
-options.add_argument("headless")
+# options.add_argument("headless")
 path_to_chrome_driver = "E:/chromedriver"
 driver = webdriver.Chrome(options=options, executable_path=path_to_chrome_driver)
 # phantom
@@ -360,7 +372,7 @@ for page in range(
             logging.warning("Error Loading ", master_resource_url)
             sub_driver.close()
             continue
-        get_metadata(sub_driver)
+        print(get_metadata(sub_driver))
         # time.sleep(8)
         # open link1, link2 and so on...
         try:
@@ -369,12 +381,9 @@ for page in range(
             logging.info("No resources under ", master_resource_url)
             continue  # if it can't calculate any page -> no data inside that link
         # calculate num of pages in each opened link...as first link is opened get all nids..
-        wait_until_loading(sub_driver, NID_XPATH, 5)
-        page_nid_list = sub_driver.find_elements(By.XPATH, NID_XPATH)
         # resource_detail = sub_driver.find_elements(By.XPATH, RESOURCE_DETAIL_XPATH)
         try:
             resource_detail_list = get_resource_names(sub_driver)
-            # resource_detail_list = get_resource_details(sub_driver)
         except:
             logging.warning(
                 "Error getting details from the page.. ",
@@ -383,12 +392,7 @@ for page in range(
             )
             sub_driver.close()
             continue
-        list_of_nids = []
-        for nid in page_nid_list:
-            list_of_nids.append(
-                nid.get_attribute("nid")
-            )  # once calculated, get nids by
-            # visiting all the other pages...
+        list_of_nids = get_nids(sub_driver)
         print("CHECKING LENGTH%%%%%", len(resource_detail_list), len(list_of_nids))
 
         list_of_file_sizes = get_file_sizes(sub_driver)
@@ -403,16 +407,8 @@ for page in range(
             zip(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list, granularity_list,
                 published_dates, updated_dates, reference_urls, api_details, notes)
         )
-        resource_detail_list.clear()
-        list_of_nids.clear()
-        list_of_file_sizes.clear()
-        download_count_list.clear()
-        granularity_list.clear()
-        published_dates.clear()
-        updated_dates.clear()
-        reference_urls.clear()
-        api_details.clear()
-        notes.clear()
+        clear_lists(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list,
+                    granularity_list, published_dates, updated_dates, reference_urls, api_details,notes)
         for j in range(2, num_of_pages + 1):
             if j > 2:
                 break  # TODO remove the following 'if' after test
@@ -454,10 +450,7 @@ for page in range(
                     )
                     sub_sub_driver.close()
                     continue
-            page_nid_list = sub_sub_driver.find_elements(By.XPATH, NID_XPATH)
-            for nid_index in range(len(page_nid_list)):
-                list_of_nids.append(page_nid_list[nid_index].get_attribute("nid"))
-
+            page_nid_list = get_nids(sub_sub_driver)
             resource_detail_list = get_resource_names(sub_sub_driver)
             list_of_file_sizes = get_file_sizes(sub_sub_driver)
             download_count_list = get_download_counts(sub_sub_driver)
@@ -473,17 +466,9 @@ for page in range(
                     published_dates, updated_dates, reference_urls, api_details, notes)
             )
             # clearing all the lists
-            resource_detail_list.clear()
-            list_of_nids.clear()
-            list_of_file_sizes.clear()
-            download_count_list.clear()
-            granularity_list.clear()
-            published_dates.clear()
-            updated_dates.clear()
-            reference_urls.clear()
-            api_details.clear()
-            notes.clear()
-
+            clear_lists(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list,
+                        granularity_list, published_dates, updated_dates, reference_urls, api_details,
+                        notes)
             sub_sub_driver.close()
 
         sub_driver.close()
