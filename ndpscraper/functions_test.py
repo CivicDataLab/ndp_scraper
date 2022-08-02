@@ -9,3 +9,6 @@ m = ['j', 342,123421,1324,1312,34,234,234,23423,4,234]
 print("l and k before clearing ", l, k,m)
 clear_lists(l, k,m)
 print("l and k after clearing ", l, k, m)
+k= {}
+k["ok"] = 1
+print(k)

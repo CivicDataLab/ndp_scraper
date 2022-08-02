@@ -17,6 +17,19 @@ header_dict = {
     "sec-ch-ua-platform": '"Windows"',
 }
 
+payload = (
+    '{"name":[{"value":"zcc"}],'
+    '"uid":[{"value":0}],'
+    '"ip":[{"value":""}],'
+    '"usage":[{"value":"2"}],'
+    '"purpose":[{"value":"5"}],'
+    '"file_type":[{"value":"csv"}],'
+    '"export_status":[{"value":"url"}],'
+    '"email":[{"value":"awd@g.co"}],'
+    '"catalog_id":[{"target_id":""}],'
+    '"resource_id":[{"target_id":6720073}]}'
+)
+
 # Change this accordingly while site gets updated
 PAGES_TO_TRAVERSE_IN_SITE = 523
 

@@ -12,9 +12,11 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 import requests
 import re
+
+from ndpscraper import variables
 from variables import *
 import urllib.parse
-from selenium.webdriver.remote.webelement import WebElement
+import csvwriter
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -29,6 +31,7 @@ def wait_until_loading(driver_instance: WebDriver, xpath: str, delay=3):
 
 def scroll_to_top(driver_instance: WebDriver):
     driver_instance.find_element(By.TAG_NAME, "body").send_keys(Keys.CONTROL + Keys.HOME)
+
 
 def xpath_exists(driver: WebDriver, xpath: str):
     try:
@@ -73,7 +76,7 @@ def get_metadata(driver_instance: WebDriver):
         By.XPATH, "//span[@title='Click Here To View Info']"
     )
     catalog_name_xpath = "//li[@class = 'breadcrumb-item active']/span"
-    catalog_info_xpath = "//span[@class = 'mb-2 mt-4 catalog_info_desc']/p"
+    catalog_info_xpath = "//span[@class = 'mb-2 mt-4 catalog_info_desc']"
     released_under_xpath = "//*[@id='accordion-1']/div/div/div/ul/li/a"
     contributor_xpath = "//*[@id='accordion-2']/div/p/div/*/*/a"
     keywords_xpath = "//*[@id='accordion-3']/div/p/div/a"
@@ -95,71 +98,93 @@ def get_metadata(driver_instance: WebDriver):
     address_xpath = (
         "//*[@id='app']/div/div[2]/div[2]/div/div[1]/div/div/div[2]/div[4]/div[3]"
     )
-    metadata = metadata_dict
+    catalog_metadata = {}
     try:
         driver_instance.execute_script("arguments[0].click();", catalog_info_button)
         if xpath_exists(driver_instance, catalog_name_xpath):
-            metadata["Catalog Name"] = driver_instance.find_element(
+            catalog_metadata["Catalog Name"] = driver_instance.find_element(
                 By.XPATH, catalog_name_xpath
             ).text
         if xpath_exists(driver_instance, catalog_info_xpath):
-            metadata["Catalog Info"] = driver_instance.find_element(
-                By.XPATH, catalog_info_xpath
-            ).text
+            if xpath_exists(driver_instance, catalog_info_xpath + "/following::a") and \
+                    driver_instance.find_element(By.XPATH, catalog_info_xpath + "/following::a").text.startswith(
+                        "More"):
+                more_button = driver_instance.find_element(By.XPATH, catalog_info_xpath + "/following::a")
+                clk = ActionChains(driver_instance).move_to_element(more_button).click().perform()
+                descriptive_info_xpath = "//p[@class = 'mb-2 catalog_info_desc']/p"
+                wait_until_loading(driver_instance, descriptive_info_xpath)
+                catalog_metadata["Catalog Info"] = driver_instance.find_element(By.XPATH, descriptive_info_xpath).text
+            elif xpath_exists(driver_instance, catalog_info_xpath + "/p"):
+                catalog_metadata["Catalog Info"] = driver_instance.find_element(
+                    By.XPATH, catalog_info_xpath + "/p"
+                ).text
+            else:
+                catalog_metadata["Catalog Info"] = ""
         if xpath_exists(driver_instance, released_under_xpath):
-            metadata["Released Under"] = driver_instance.find_element(
+            catalog_metadata["Released Under"] = driver_instance.find_element(
                 By.XPATH, released_under_xpath
             ).text
-
+        else:
+            catalog_metadata["Released Under"] = ""
         wait_until_loading(driver_instance, contributor_xpath)  # xpath for contributor
         if xpath_exists(driver_instance, contributor_xpath):
             contributor_elements = driver_instance.find_elements(By.XPATH, contributor_xpath)
             contributors_list = []
             for element in contributor_elements:
                 contributors_list.append(element.get_attribute("innerHTML"))
-            metadata["Contributor"] = contributors_list
-
+            catalog_metadata["Contributor"] = contributors_list
+        else:
+            catalog_metadata["Contributor"] = ""
         if xpath_exists(driver_instance, keywords_xpath):
             keyword_elements = driver_instance.find_elements(By.XPATH, keywords_xpath)
             keywords_list = []
             for element in keyword_elements:
                 keywords_list.append(element.get_attribute("innerHTML"))
-            metadata["Keywords"] = keywords_list
-
+            catalog_metadata["Keywords"] = keywords_list
+        else:
+            catalog_metadata["Keywords"] = ""
         if xpath_exists(driver_instance, group_xpath):
             group_elements = driver_instance.find_elements(By.XPATH, group_xpath)
             groups_list = []
             for element in group_elements:
                 groups_list.append(element.get_attribute("innerHTML"))
-            metadata["Group"] = groups_list
-
+            catalog_metadata["Group"] = groups_list
+        else:
+            catalog_metadata["Group"] = ""
         if xpath_exists(driver_instance, sector_xpath):
             sector_elements = driver_instance.find_elements(By.XPATH, sector_xpath)
             sectors_list = []
             for element in sector_elements:
                 sectors_list.append(element.get_attribute("innerHTML"))
-            metadata["Sectors"] = sectors_list
-
+            catalog_metadata["Sectors"] = sectors_list
+        else:
+            catalog_metadata["Sectors"] = ""
         if xpath_exists(driver_instance, published_on_xpath):
-            metadata["Published On"] = driver_instance.find_element(
+            catalog_metadata["Published On"] = driver_instance.find_element(
                 By.XPATH, published_on_xpath
             ).get_attribute("innerHTML")
-
+        else:
+            catalog_metadata["Published On"] = ""
         if xpath_exists(driver_instance, updated_on_xpath):
-            metadata["Updated On"] = driver_instance.find_element(
+            catalog_metadata["Updated On"] = driver_instance.find_element(
                 By.XPATH, updated_on_xpath
             ).get_attribute("innerHTML")
-
+        else:
+            catalog_metadata["Updated On"] = ""
         if xpath_exists(driver_instance, domain_xpath):
-            metadata["Domain"] = driver_instance.find_element(
+            catalog_metadata["Domain"] = driver_instance.find_element(
                 By.XPATH, domain_xpath
             ).get_attribute("innerHTML")
-
+        else:
+            catalog_metadata["Domain"] = ""
         if xpath_exists(driver_instance, cdo_name_xpath):
-            metadata["CDO Name"] = driver_instance.find_element(By.XPATH, cdo_name_xpath).text
+            catalog_metadata["CDO Name"] = driver_instance.find_element(By.XPATH, cdo_name_xpath).text
+        else:
+            catalog_metadata["CDO Name"] = ""
         if xpath_exists(driver_instance, cdo_post_xpath):
-            metadata["CDO Post"] = (driver_instance.find_element(By.XPATH, cdo_post_xpath).text,)
-
+            catalog_metadata["CDO Post"] = (driver_instance.find_element(By.XPATH, cdo_post_xpath).text,)
+        else:
+            catalog_metadata["CDO Post"] = ""
         # Ministry name can be long and can only be extracted when hovered over it
         if xpath_exists(driver_instance, ministry_name_xpath):
             try:
@@ -173,15 +198,21 @@ def get_metadata(driver_instance: WebDriver):
                 ministry_name = driver_instance.find_element(
                     By.XPATH, "//div[@class='popover-body']"
                 ).text
-                metadata["Ministry/State/Department"] = ministry_name
+                catalog_metadata["Ministry/State/Department"] = ministry_name
             except:
                 logging.warning("Ministry name isn't intractable")
+        else:
+            catalog_metadata["Ministry/State/Department"] = ""
         if xpath_exists(driver_instance, phone_number_xpath):
-            metadata["Phone"] = (
+            catalog_metadata["Phone"] = (
                 driver_instance.find_element(By.XPATH, phone_number_xpath).text,
             )
+        else:
+            catalog_metadata["Phone"] = ""
         if xpath_exists(driver_instance, email_xpath):
-            metadata["Email"] = (driver_instance.find_element(By.XPATH, email_xpath).text,)
+            catalog_metadata["Email"] = (driver_instance.find_element(By.XPATH, email_xpath).text,)
+        else:
+            catalog_metadata["Email"] = ""
         # even address is extracted by hovering
         if xpath_exists(driver_instance, address_xpath):
             try:
@@ -193,11 +224,13 @@ def get_metadata(driver_instance: WebDriver):
                 address = driver_instance.find_element(
                     By.XPATH, "//div[@class='popover-body']"
                 ).text
-                metadata["Address"] = address
+                catalog_metadata["Address"] = address
             except:
                 logging.warning("Address not intractable")
-        print("########", metadata)
-        return metadata
+        else:
+            catalog_metadata["Address"] = ""
+        print("########", catalog_metadata)
+        return catalog_metadata
     except:
         logging.warning("Catalog button isn't clickable..")
 
@@ -222,7 +255,7 @@ def get_download_counts(driver_instance: WebDriver):
     return downloads_count
 
 
-def get_granularity_of_all(driver_instance:WebDriver):
+def get_granularity_of_all(driver_instance: WebDriver):
     granularity_list = []
     granularity_xpath = "//label[@title = 'Granularity']/following::strong[1]"
     if xpath_exists(driver_instance, granularity_xpath):
@@ -232,7 +265,7 @@ def get_granularity_of_all(driver_instance:WebDriver):
     return granularity_list
 
 
-def get_published_dates(driver_instance:WebDriver):
+def get_published_dates(driver_instance: WebDriver):
     published_dates_list = []
     published_date_xpath = "//label[@title = 'Published on:']/following::strong[1]"
     if xpath_exists(driver_instance, published_date_xpath):
@@ -242,7 +275,7 @@ def get_published_dates(driver_instance:WebDriver):
     return published_dates_list
 
 
-def get_updated_dates(driver_instance:WebDriver):
+def get_updated_dates(driver_instance: WebDriver):
     updated_dates_list = []
     updated_date_xpath = "//label[@title = 'Updated on:']/following::strong[1]"
     if xpath_exists(driver_instance, updated_date_xpath):
@@ -262,7 +295,7 @@ def get_reference_urls(driver_instance: WebDriver):
     return reference_urls
 
 
-def get_api_details(driver_instance:WebDriver):
+def get_api_details(driver_instance: WebDriver):
     api_list = []
     api_xpath = "//div[@class='CR_strip col-12'][2]/div/div[3]"
     if xpath_exists(driver_instance, api_xpath):
@@ -350,9 +383,9 @@ start_time = time.time()
 
 driver.get("https://data.gov.in/catalogs?page=1")
 
-detail_nid_tuple = ()
+
 for page in range(
-    2, 3
+        2, 3
 ):  # TODO change the upper limit to total num of pages while prod run
     print("inside main page ", page)
     wait_until_loading(driver, "//div[@class='card-header']/a")
@@ -372,7 +405,8 @@ for page in range(
             logging.warning("Error Loading ", master_resource_url)
             sub_driver.close()
             continue
-        print(get_metadata(sub_driver))
+        metadata = {}
+        metadata = get_metadata(sub_driver)
         # time.sleep(8)
         # open link1, link2 and so on...
         try:
@@ -403,12 +437,14 @@ for page in range(
         reference_urls = get_reference_urls(sub_driver)
         api_details = get_api_details(sub_driver)
         notes = get_notes(sub_driver)
-        detail_nid_tuple = detail_nid_tuple + tuple(
+        detail_nid_tuple = list(
             zip(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list, granularity_list,
                 published_dates, updated_dates, reference_urls, api_details, notes)
         )
-        clear_lists(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list,
-                    granularity_list, published_dates, updated_dates, reference_urls, api_details,notes)
+        csvwriter.write_catalog_data_to_csv(metadata, detail_nid_tuple)
+        #detail_nid_tuple = list()
+        #clear_lists(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list,
+                    #granularity_list, published_dates, updated_dates, reference_urls, api_details, notes)
         for j in range(2, num_of_pages + 1):
             if j > 2:
                 break  # TODO remove the following 'if' after test
@@ -418,9 +454,9 @@ for page in range(
             )
             master_resource_params = {"page": j}
             master_resource_page_to_get = (
-                master_resource_url
-                + "?"
-                + urllib.parse.urlencode(master_resource_params)
+                    master_resource_url
+                    + "?"
+                    + urllib.parse.urlencode(master_resource_params)
             )
             try:
                 sub_sub_driver.get(master_resource_page_to_get)  # open next page
@@ -450,6 +486,7 @@ for page in range(
                     )
                     sub_sub_driver.close()
                     continue
+            print("PRINTING ALL LISTS UNDER PAGE 2 ONWARDS....")
             page_nid_list = get_nids(sub_sub_driver)
             resource_detail_list = get_resource_names(sub_sub_driver)
             list_of_file_sizes = get_file_sizes(sub_sub_driver)
@@ -460,17 +497,22 @@ for page in range(
             reference_urls = get_reference_urls(sub_sub_driver)
             api_details = get_api_details(sub_sub_driver)
             notes = get_notes(sub_sub_driver)
-
-            detail_nid_tuple = detail_nid_tuple + tuple(
+            print(page_nid_list)
+            print(resource_detail_list)
+            print(list_of_file_sizes)
+            detail_nid_tuple = list(
                 zip(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list, granularity_list,
                     published_dates, updated_dates, reference_urls, api_details, notes)
             )
+            print("PRINTING DATA FROM SECOND PAGE ONWARDS...")
+            print(detail_nid_tuple)
+            csvwriter.write_catalog_data_to_csv(metadata, detail_nid_tuple)
             # clearing all the lists
-            clear_lists(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list,
-                        granularity_list, published_dates, updated_dates, reference_urls, api_details,
-                        notes)
+            # clear_lists(resource_detail_list, list_of_nids, list_of_file_sizes, download_count_list,
+            #             granularity_list, published_dates, updated_dates, reference_urls, api_details,
+            #             notes)
+            # detail_nid_tuple = list()
             sub_sub_driver.close()
-
         sub_driver.close()
     params = {"page": page}
     url_to_get = site_url + urllib.parse.urlencode(params)
@@ -479,30 +521,17 @@ for page in range(
     driver.get(url_to_get)
     time.sleep(2)
 
-
 print(len(detail_nid_tuple))
 print(set(detail_nid_tuple))
 print("time taken is ", time.time() - start_time)
 
 """Making a request ... Headers are to be updated using selectors """
-payload = (
-    '{"name":[{"value":"zcc"}],'
-    '"uid":[{"value":0}],'
-    '"ip":[{"value":""}],'
-    '"usage":[{"value":"2"}],'
-    '"purpose":[{"value":"5"}],'
-    '"file_type":[{"value":"csv"}],'
-    '"export_status":[{"value":"url"}],'
-    '"email":[{"value":"awd@g.co"}],'
-    '"catalog_id":[{"target_id":""}],'
-    '"resource_id":[{"target_id":6720073}]}'
-)
 
 header = header_dict
 
 res = requests.post(
     "https://data.gov.in/backend/dms/v1/ogdp/download_purpose?_format=json",
-    data=payload,
+    data=variables.payload,
     headers=header_dict,
 )
 print(res.content)
