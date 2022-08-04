@@ -1,23 +1,21 @@
 """ All rough scripts here.. """
 import json
 import logging
+import re
 import time
-import variables
 
+import requests
+import variables
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-import requests
-import re
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-import variables
 
 
 def wait_until_loading(driver_instance: WebDriver, xpath: str, delay=3):
@@ -46,33 +44,38 @@ path_to_chrome_driver = "E:/chromedriver"
 driver = webdriver.Chrome(options=options, executable_path=path_to_chrome_driver)
 site_url = "https://data.gov.in/catalogs?"
 
-driver.get(
-    "https://data.gov.in/catalog/surat-citizen-centric-services"
-)
+driver.get("https://data.gov.in/catalog/surat-citizen-centric-services")
 
 
-def get_resource_urls(nid_list: list()):
-    url_list = []
-    for nid in nid_list:
+def get_resource_urls(list_of_nids: list):
+    """
+    The method requests the server with list of NIDs and fetches the resource URLs pertaining to the
+    corresponding NID.
+    NID is passed in the request payload.
+    :param list_of_nids: List
+    :return: List of resource URLs
+    """
+    resource_url_list = []
+    for nid in list_of_nids:
         json_payload = json.loads(variables.payload)
-        json_payload['resource_id'][0]['target_id'] = nid
+        json_payload["resource_id"][0]["target_id"] = nid
         request_payload = json.dumps(json_payload)
         response = requests.post(
             "https://data.gov.in/backend/dms/v1/ogdp/download_purpose?_format=json",
             data=request_payload,
-            headers=variables.header_dict
+            headers=variables.header_dict,
         ).content
         json_response = json.loads(response)
-        print(json_response)
-        url_list.append(json_response['download_url'])
-    print(url_list)
+        resource_url_list.append(json_response["download_url"])
+    print(resource_url_list)
+    return resource_url_list
 
     # for nid in nid_list:
     #     json_payload = json.loads(variables.payload)
     #
 
 
-nid_list = ['3787461', '3787441', '3787401', '3787201', '3787181']
+nid_list = ["6815670"]
 get_resource_urls(nid_list)
 
 
@@ -223,7 +226,7 @@ get_resource_urls(nid_list)
 #
 # get_metadata(driver)
 
-'''
+"""
 na_xpath = "//div[@class='CR_strip col-12'][2]/div/div[3]"
 nna_xpath = "//div[@class='CR_strip col-12'][2]/div/div[3]/*/*/a"
 k = driver.find_elements(By.XPATH, na_xpath)
@@ -237,7 +240,7 @@ for i in k:
         api_link = i.find_element(By.XPATH, "./*/*/a").get_attribute("href")
         list_of_apis.append((api_name, api_link))
 print(list_of_apis)
-'''
+"""
 
 # resource_name_list = []
 # tool_tips_real = driver.find_elements(By.XPATH, "//div[@class='card-header']/span")

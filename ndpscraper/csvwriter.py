@@ -1,17 +1,37 @@
 import csv
-import json
-from collections import OrderedDict
-
-import pandas as pd
 
 
 def write_catalog_data_to_csv(metadata, catalogdata):
-    col_names = ['Catalog Name', 'Catalog Info', 'Released Under', 'Contributor',
-                 'Keywords', 'Group', 'Sectors', 'Catalog Published On', 'Catalog Updated On', 'Domain',
-                 'CDO Name', 'CDO Post', 'Ministry/State/Department', 'Phone', 'Email', 'Address',
-                 'Resource', 'NID', 'File Size', 'Downloads', 'Granularity', 'Resource Published On',
-                 'Resource Updated On', 'Reference URL', 'Sourced webservices/APIs', 'Note']
-    with open('data.csv', 'a+', newline='') as out:
+    col_names = [
+        "Catalog Name",
+        "Catalog Info",
+        "Released Under",
+        "Contributor",
+        "Keywords",
+        "Group",
+        "Sectors",
+        "Catalog Published On",
+        "Catalog Updated On",
+        "Domain",
+        "CDO Name",
+        "CDO Post",
+        "Ministry/State/Department",
+        "Phone",
+        "Email",
+        "Address",
+        "Resource",
+        "NID",
+        "File Size",
+        "Downloads",
+        "Granularity",
+        "Resource Published On",
+        "Resource Updated On",
+        "Reference URL",
+        "Sourced webservices/APIs",
+        "Note",
+        "Resource URL",
+    ]
+    with open("data.csv", "a+", newline="") as out:
         csv_out = csv.writer(out)
         file_content = out.read()
         print(file_content)
