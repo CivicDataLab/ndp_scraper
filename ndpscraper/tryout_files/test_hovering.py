@@ -5,7 +5,7 @@ import re
 import time
 
 import requests
-import variables
+from ndpscraper import variables
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains, Keys
@@ -75,7 +75,7 @@ def get_resource_urls(list_of_nids: list):
     #
 
 
-nid_list = ["6815670"]
+nid_list = ["804661"]
 get_resource_urls(nid_list)
 
 
