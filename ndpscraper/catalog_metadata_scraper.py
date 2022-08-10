@@ -3,8 +3,8 @@ import time
 
 from selenium.webdriver import ActionChains
 
-from ndpscraper import variables
-from ndpscraper.utils import *
+from ndpscraper import const_variables
+from ndpscraper.utility_methods import *
 
 
 def get_metadata(driver_instance: WebDriver):
@@ -203,5 +203,6 @@ def get_metadata(driver_instance: WebDriver):
         print("########", catalog_metadata)
         return catalog_metadata
     except:
-        metadata = variables.metadata_dict
+        metadata = const_variables.metadata_dict
         logging.warning("Catalog button isn't clickable..")
+        return metadata

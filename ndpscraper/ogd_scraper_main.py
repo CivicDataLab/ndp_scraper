@@ -4,11 +4,11 @@
 import logging
 import time
 
-import csvwriter
-from catalog_metadata_extractor import get_metadata
+import csv_writer
+from catalog_metadata_scraper import get_metadata
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from utils import *
+from utility_methods import *
 
 options = Options()
 options.add_argument("--window-size=1920,1200")
@@ -83,7 +83,7 @@ for page in range(146, 149):
                 )
             )
             print(scraped_data)
-            csvwriter.write_catalog_data_to_csv(metadata, scraped_data)
+            csv_writer.write_catalog_data_to_csv(metadata, scraped_data)
             if xpath_exists(driver, next_page_btn_xpath):
                 resource_page_no += 1
                 next_page_btn = driver.find_element(By.XPATH, next_page_btn_xpath)

@@ -1,15 +1,17 @@
 """ The file contains the methods that are used to get various information from any given page of
 data.gov.in website.
 """
-
-
+import json
 from typing import Any
 
+import requests
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+
+from ndpscraper import const_variables
 
 
 def wait_until_loading(driver_instance: WebDriver, xpath: str, delay=10):
@@ -278,3 +280,27 @@ def get_updated_dates(driver_instance: WebDriver):
             )
             updated_dates_list.append(up_date)
     return updated_dates_list
+
+
+def get_resource_urls(list_of_nids: list):
+    """
+    The method requests the server with list of NIDs and fetches the resource URLs pertaining to the
+    corresponding NID.
+    NID is passed in the request payload.
+    :param list_of_nids: List
+    :return: List of resource URLs
+    """
+    resource_url_list = []
+    for nid in list_of_nids:
+        json_payload = json.loads(const_variables.payload)
+        json_payload["resource_id"][0]["target_id"] = nid
+        request_payload = json.dumps(json_payload)
+        response = requests.post(
+            "https://data.gov.in/backend/dms/v1/ogdp/download_purpose?_format=json",
+            data=request_payload,
+            headers=const_variables.header_dict,
+        ).content
+        json_response = json.loads(response)
+        resource_url_list.append(json_response["download_url"])
+    print(resource_url_list)
+    return resource_url_list
