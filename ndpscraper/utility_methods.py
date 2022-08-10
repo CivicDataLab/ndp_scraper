@@ -287,7 +287,7 @@ def get_resource_urls(list_of_nids: list):
     The method requests the server with list of NIDs and fetches the resource URLs pertaining to the
     corresponding NID.
     NID is passed in the request payload.
-    :param list_of_nids: List
+    :param: list_of_nids: List
     :return: List of resource URLs
     """
     resource_url_list = []
