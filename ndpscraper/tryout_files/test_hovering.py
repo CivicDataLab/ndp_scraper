@@ -5,7 +5,6 @@ import re
 import time
 
 import requests
-from ndpscraper import variables
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains, Keys
@@ -16,6 +15,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+
+from ndpscraper import variables
 
 
 def wait_until_loading(driver_instance: WebDriver, xpath: str, delay=3):

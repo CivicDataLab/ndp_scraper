@@ -1,6 +1,10 @@
 import logging
+import time
 
-from utils import *
+from selenium.webdriver import ActionChains
+
+from ndpscraper import variables
+from ndpscraper.utils import *
 
 
 def get_metadata(driver_instance: WebDriver):
@@ -163,6 +167,7 @@ def get_metadata(driver_instance: WebDriver):
                 ).text
                 catalog_metadata["Ministry/State/Department"] = ministry_name
             except:
+                catalog_metadata["Ministry/State/Department"] = ""
                 logging.warning("Ministry name isn't intractable")
         else:
             catalog_metadata["Ministry/State/Department"] = ""
@@ -191,10 +196,12 @@ def get_metadata(driver_instance: WebDriver):
                 ).text
                 catalog_metadata["Address"] = address
             except:
+                catalog_metadata["Address"] = ""
                 logging.warning("Address not intractable")
         else:
             catalog_metadata["Address"] = ""
         print("########", catalog_metadata)
         return catalog_metadata
     except:
+        metadata = variables.metadata_dict
         logging.warning("Catalog button isn't clickable..")
