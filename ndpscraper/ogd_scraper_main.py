@@ -9,10 +9,7 @@ from catalog_metadata_scraper import get_metadata
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from utility_methods import *
-<<<<<<< HEAD:ndpscraper/ogd_scraper_main.py
 from const_variables import *
-=======
->>>>>>> origin/adding_scraper:ndpscraper/scraper_main.py
 
 options = Options()
 options.add_argument("--window-size=1920,1200")
@@ -27,7 +24,7 @@ next_page_btn_xpath = "//button[@aria-label='Go to next page']"
 list_view_btn_xpath = "//a[@title='List View']"
 grid_view_btn_xpath = "//a[@title='Grid View']"
 start_time = time.time()
-main_page_no = 148
+main_page_no = 1
 
 while True:
     driver.get("https://data.gov.in/catalogs?page=" + str(main_page_no))
@@ -86,13 +83,9 @@ while True:
                     notes,
                 )
             )
-<<<<<<< HEAD:ndpscraper/ogd_scraper_main.py
             # print(scraped_data)
             csv_writer.write_catalog_data_to_csv(metadata, scraped_data, col_names)
-=======
-            print(scraped_data)
             csv_writer.write_catalog_data_to_csv(metadata, scraped_data)
->>>>>>> origin/adding_scraper:ndpscraper/scraper_main.py
             if xpath_exists(driver, next_page_btn_xpath):
                 resource_page_no += 1  # increment the page no. so that metadata isn't scraped again
                 next_page_btn = driver.find_element(By.XPATH, next_page_btn_xpath)
