@@ -77,41 +77,35 @@ def xpath_exists(driver_instance: WebDriver, xpath: str):
     return True
 
 
-def get_resource_names(driver_instance: WebDriver):
+def get_resource_names(driver_instance: WebDriver, card_header_xpath:str):
     """
     The method fetches the resource names present in the page. The names should be hovered over as they are
     truncated if too long.
-    :param driver_instance:WebDriver
+    :param: driver_instance:WebDriver
+    :param: card_header_xpath - xpath
     :return: list of resource names
     """
     resource_name_list = []
-    card_header_xpath = "(//div[@class='card-header']/span)"
     if xpath_exists(driver_instance, card_header_xpath):
         name_elements = driver_instance.find_elements(By.XPATH, card_header_xpath)
+        # the first element is not related to resources, hence popping
         name_elements.pop(0)
-        list_size = 0
-        if len(name_elements) == 1 or len(name_elements) == 2:
-            list_size = len(name_elements) + 1
-        else:
-            list_size = len(name_elements) + 1
-        for name_idx in range(2, list_size + 1):
+        for name_idx in range(2, len(name_elements) + 2):
             name = get_text_without_stale_element_exception(
                 driver_instance, card_header_xpath, name_idx
             )
             resource_name_list.append(name)
-        # The following for loop scrolls the page until it gets all the desired elements i.e. resource names
     return resource_name_list
 
 
-def get_notes(driver_instance: WebDriver):
+def get_notes(driver_instance: WebDriver, notes_xpath:str):
     """
     Note: Notes is usually truncated if it's too long. So it's necessary to hover over the notes element to
     fetch the complete text.
-    :param driver_instance: WebDriver
+    :params: driver_instance: WebDriver, notes_xpath - xpath
     :return: List of Notes describing what the resource is all about.
     """
     notes_list = []
-    notes_xpath = "(//span[@class='note_text'])"
     if xpath_exists(driver_instance, notes_xpath):
         notes_elements = driver_instance.find_elements(By.XPATH, notes_xpath)
         for note_idx in range(1, len(notes_elements) + 1):
@@ -122,13 +116,12 @@ def get_notes(driver_instance: WebDriver):
     return notes_list
 
 
-def get_reference_urls(driver_instance: WebDriver):
+def get_reference_urls(driver_instance: WebDriver, reference_url_xpath:str):
     """
-    :param driver_instance:WebDriver
+    :params: driver_instance:WebDriver, reference_url_xpath - xpath
     :return: list of reference URLs of all the resources in the given page.
     """
     catalog_reference_urls = []
-    reference_url_xpath = "(//div[@class='CR_strip col-12'][1]/div/div[3])"
     if xpath_exists(driver_instance, reference_url_xpath):
         reference_url_elements = driver_instance.find_elements(
             By.XPATH, reference_url_xpath
@@ -141,15 +134,14 @@ def get_reference_urls(driver_instance: WebDriver):
     return catalog_reference_urls
 
 
-def get_api_details(driver_instance: WebDriver):
+def get_api_details(driver_instance: WebDriver, api_xpath:str):
     """
     The returned list contains tuples where the first element of the tuple corresponds to the name of the
     API and the second element is the link to API.
-    :param driver_instance:WebDriver
+    :params: driver_instance:WebDriver, api_api_xpath - xpath
     :return: list of tuples containing api details of all the resources in the given page.
     """
     api_list = []
-    api_xpath = "(//div[@class='CR_strip col-12'][2]/div/div[3])"
     if xpath_exists(driver_instance, api_xpath):
         api_elements = driver_instance.find_elements(By.XPATH, api_xpath)
         for api_idx in range(1, len(api_elements) + 1):
@@ -169,15 +161,14 @@ def get_api_details(driver_instance: WebDriver):
     return api_list
 
 
-def get_nids(driver_instance: WebDriver):
+def get_nids(driver_instance: WebDriver, nid_xpath: str):
     """
     Note: NID is crucial to get the resource URL. It's unique to the resource.
     NID is passed in the request payload which returns the resource URL in the response.
-    :param driver_instance:WebDriver
+    :params: driver_instance:WebDriver, nid_xpath - xpath
     :return: List of NIDs of the resources present in the driver
     """
     nid_list = []
-    nid_xpath = "(//*[@id='app']/div/div[3]/div[2]/div[1]/div/div/div[2]/div[2])"
     if xpath_exists(driver_instance, nid_xpath):
         nid_elements = driver_instance.find_elements(By.XPATH, nid_xpath)
         for nid_idx in range(1, len(nid_elements) + 1):
@@ -188,13 +179,12 @@ def get_nids(driver_instance: WebDriver):
     return nid_list
 
 
-def get_file_sizes(driver_instance: WebDriver):
+def get_file_sizes(driver_instance: WebDriver, file_size_xpath: str):
     """
-    :param driver_instance:WebDriver
+    :params: driver_instance:WebDriver, file_size_file_size_xpath - xpath
     :return: list of file sizes of all the resources present in a page
     """
     file_sizes = []
-    file_size_xpath = "(//label[@title = 'File Size']/following::strong[1])"
     if xpath_exists(driver_instance, file_size_xpath):
         file_size_elements = driver_instance.find_elements(By.XPATH, file_size_xpath)
         for size_idx in range(1, len(file_size_elements) + 1):
@@ -205,13 +195,12 @@ def get_file_sizes(driver_instance: WebDriver):
     return file_sizes
 
 
-def get_download_counts(driver_instance: WebDriver):
+def get_download_counts(driver_instance: WebDriver, downloads_xpath: str):
     """
-    :param driver_instance: WebDriver
+    :params: driver_instance: WebDriver, downloads_downloads_xpath: xpath
     :return: list of download counts of all the resources in a page
     """
     downloads_count = []
-    downloads_xpath = "(//label[@title = 'Download']/following::strong[1])"
     if xpath_exists(driver_instance, downloads_xpath):
         download_count_elements = driver_instance.find_elements(
             By.XPATH, downloads_xpath
@@ -224,13 +213,12 @@ def get_download_counts(driver_instance: WebDriver):
     return downloads_count
 
 
-def get_granularity_of_all(driver_instance: WebDriver):
+def get_granularity_of_all(driver_instance: WebDriver, granularity_xpath: str):
     """
-    :param driver_instance:WebDriver
+    :params: driver_instance:WebDriver, granularity_xpath - xpath
     :return: list of granularity of all the resources in the given page.
     """
     resource_granularity_list = []
-    granularity_xpath = "(//label[@title = 'Granularity']/following::strong[1])"
     if xpath_exists(driver_instance, granularity_xpath):
         wait_until_loading(driver_instance, granularity_xpath)
         granularity_elements = driver_instance.find_elements(
@@ -244,13 +232,12 @@ def get_granularity_of_all(driver_instance: WebDriver):
     return resource_granularity_list
 
 
-def get_published_dates(driver_instance: WebDriver):
+def get_published_dates(driver_instance: WebDriver, published_date_xpath: str):
     """
-    :param driver_instance:WebDriver
+    :params: driver_instance:WebDriver, published_date_xpath - xpath
     :return: list of published dates of all the resources in the given page.
     """
     published_dates_list = []
-    published_date_xpath = "(//label[@title = 'Published on:']/following::strong[1])"
     if xpath_exists(driver_instance, published_date_xpath):
         published_dates_elements = driver_instance.find_elements(
             By.XPATH, published_date_xpath
@@ -263,13 +250,12 @@ def get_published_dates(driver_instance: WebDriver):
     return published_dates_list
 
 
-def get_updated_dates(driver_instance: WebDriver):
+def get_updated_dates(driver_instance: WebDriver, updated_date_xpath: str):
     """
-    :param driver_instance:WebDriver
+    :param: driver_instance:WebDriver, updated_date_xpath - xpath
     :return: list of updated dates of all the resources in the given page.
     """
     updated_dates_list = []
-    updated_date_xpath = "(//label[@title = 'Updated on:']/following::strong[1])"
     if xpath_exists(driver_instance, updated_date_xpath):
         updated_dates_elements = driver_instance.find_elements(
             By.XPATH, updated_date_xpath
@@ -301,6 +287,9 @@ def get_resource_urls(list_of_nids: list):
             headers=const_variables.header_dict,
         ).content
         json_response = json.loads(response)
+        print(response)
         resource_url_list.append(json_response["download_url"])
     print(resource_url_list)
     return resource_url_list
+
+get_resource_urls(["155464"])

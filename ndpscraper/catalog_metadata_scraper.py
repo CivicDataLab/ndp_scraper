@@ -200,7 +200,7 @@ def get_metadata(driver_instance: WebDriver):
                 logging.warning("Address not intractable")
         else:
             catalog_metadata["Address"] = ""
-        print("########", catalog_metadata)
+        # print("########", catalog_metadata)
         return catalog_metadata
     except:
         metadata = const_variables.metadata_dict

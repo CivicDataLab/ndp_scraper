@@ -53,3 +53,43 @@ metadata_dict = {
     "Email": "",
     "Address": "",
 }
+
+card_header_xpath = "(//div[@class='card-header']/span)"
+notes_xpath = "(//span[@class='note_text'])"
+reference_url_xpath = "(//div[@class='CR_strip col-12'][1]/div/div[3])"
+api_xpath = "(//div[@class='CR_strip col-12'][2]/div/div[3])"
+nid_xpath = "(//*[@id='app']/div/div[3]/div[2]/div[1]/div/div/div[2]/div[2])"
+file_size_xpath = "(//label[@title = 'File Size']/following::strong[1])"
+downloads_xpath = "(//label[@title = 'Download']/following::strong[1])"
+granularity_xpath = "(//label[@title = 'Granularity']/following::strong[1])"
+published_date_xpath = "(//label[@title = 'Published on:']/following::strong[1])"
+updated_date_xpath = "(//label[@title = 'Updated on:']/following::strong[1])"
+
+col_names = [
+        "Catalog Name",
+        "Catalog Info",
+        "Released Under",
+        "Contributor",
+        "Keywords",
+        "Group",
+        "Sectors",
+        "Catalog Published On",
+        "Catalog Updated On",
+        "Domain",
+        "CDO Name",
+        "CDO Post",
+        "Ministry/State/Department",
+        "Phone",
+        "Email",
+        "Address",
+        "Resource",
+        "NID",
+        "File Size",
+        "Downloads",
+        "Granularity",
+        "Resource Published On",
+        "Resource Updated On",
+        "Reference URL",
+        "Sourced webservices/APIs",
+        "Note"
+    ]
