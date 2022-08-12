@@ -291,5 +291,3 @@ def get_resource_urls(list_of_nids: list):
         resource_url_list.append(json_response["download_url"])
     print(resource_url_list)
     return resource_url_list
-
-get_resource_urls(["155464"])
